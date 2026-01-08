@@ -70,35 +70,16 @@
       padding: 18px 14px 120px;
     }
 
-    .controls{
-      display:grid;
-      grid-template-columns: 1fr;
-      gap: 10px;
-      margin: 18px 0 10px;
-    }
-    .search{
-      display:flex; gap:10px; align-items:center;
-      padding: 12px 12px;
-      border-radius: var(--radius);
-      border: 1px solid var(--line);
-      background: rgba(255,255,255,.04);
-      box-shadow: 0 10px 28px rgba(0,0,0,.18);
-    }
-    .search input{
-      width:100%;
-      border:none;
-      outline:none;
-      background:transparent;
-      color: var(--text);
-      font-size: 15px;
-    }
-    .search input::placeholder{ color: rgba(255,255,255,.55); }
-
     .hint{
       color: var(--muted);
       font-size: 12px;
-      margin: 8px 0 12px;
+      margin: 12px 0 10px;
       padding: 0 4px;
+      display:flex;
+      gap: 10px;
+      align-items:center;
+      justify-content: space-between;
+      flex-wrap: wrap;
     }
 
     .grid{
@@ -108,7 +89,6 @@
       margin-top: 10px;
     }
     @media (min-width: 650px){
-      .controls{ grid-template-columns: 1fr auto; align-items:center; }
       .grid{ grid-template-columns: repeat(2, minmax(0, 1fr)); }
       .brand h1{ font-size: 20px; }
     }
@@ -123,33 +103,85 @@
       overflow:hidden;
       box-shadow: var(--shadow);
     }
-    .photos{
-      display:grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 8px;
+
+    /* ===== Carrossel no card ===== */
+    .carousel{
+      position: relative;
       padding: 12px;
+      padding-bottom: 10px;
     }
-    .photo{
+    .carousel-viewport{
       border-radius: 12px;
       overflow:hidden;
       background: rgba(255,255,255,.06);
       border: 1px solid rgba(255,255,255,.10);
       aspect-ratio: 4 / 3;
-      cursor:pointer;
-      position:relative;
+      position: relative;
+      cursor: pointer;
+      touch-action: pan-y;
     }
-    .photo img{
+    .carousel-viewport img{
       width:100%;
       height:100%;
       object-fit: cover;
       display:block;
       transform: scale(1.01);
       transition: transform .25s ease;
+      user-select: none;
+      -webkit-user-drag: none;
     }
-    .photo:hover img{ transform: scale(1.05); }
-    .more-badge{
+    .carousel-viewport:hover img{ transform: scale(1.05); }
+
+    .car-btn{
       position:absolute;
-      inset:auto 8px 8px auto;
+      top: 50%;
+      transform: translateY(-50%);
+      width: 40px;
+      height: 40px;
+      border-radius: 999px;
+      border: 1px solid rgba(255,255,255,.18);
+      background: rgba(0,0,0,.35);
+      color: rgba(255,255,255,.95);
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      cursor:pointer;
+      backdrop-filter: blur(8px);
+      transition: transform .08s ease, background .2s ease, border-color .2s ease;
+      z-index: 2;
+    }
+    .car-btn:active{ transform: translateY(-50%) scale(.98); }
+    .car-btn:hover{
+      background: rgba(0,0,0,.45);
+      border-color: rgba(255,255,255,.28);
+    }
+    .car-btn.prev{ left: 18px; }
+    .car-btn.next{ right: 18px; }
+    .car-btn[disabled]{ opacity:.45; cursor: default; }
+
+    .car-dots{
+      display:flex;
+      gap: 6px;
+      justify-content:center;
+      align-items:center;
+      margin-top: 10px;
+      min-height: 14px;
+    }
+    .dot{
+      width: 7px;
+      height: 7px;
+      border-radius: 999px;
+      background: rgba(255,255,255,.25);
+      border: 1px solid rgba(255,255,255,.18);
+      cursor:pointer;
+    }
+    .dot.active{
+      background: rgba(37,211,102,.75);
+      border-color: rgba(37,211,102,.55);
+    }
+    .car-badge{
+      position:absolute;
+      inset:auto 18px 18px auto;
       background: rgba(0,0,0,.55);
       border: 1px solid rgba(255,255,255,.20);
       color: rgba(255,255,255,.95);
@@ -157,6 +189,7 @@
       border-radius: 999px;
       font-size: 12px;
       backdrop-filter: blur(8px);
+      z-index: 2;
     }
 
     .content{
@@ -188,6 +221,7 @@
       display:flex;
       gap: 10px;
       margin-top: 12px;
+      flex-wrap: wrap;
     }
     .btn{
       display:inline-flex;
@@ -205,6 +239,7 @@
       flex: 1;
       cursor:pointer;
       transition: transform .08s ease, background .2s ease, border-color .2s ease;
+      min-width: 120px;
     }
     .btn:active{ transform: scale(.98); }
     .btn:hover{
@@ -243,11 +278,11 @@
       .wa-float small{ display:block; }
     }
 
-    /* Modal */
+    /* ===== Modal (agora com carrossel grande) ===== */
     .modal{
       position: fixed;
       inset: 0;
-      background: rgba(0,0,0,.78);
+      background: rgba(0,0,0,.82);
       display:none;
       align-items:center;
       justify-content:center;
@@ -283,13 +318,63 @@
       font-weight: 900;
     }
     .modal-body{ padding: 12px; }
-    .modal-body img{
-      width: 100%;
-      max-height: 78vh;
-      object-fit: contain;
-      background: rgba(0,0,0,.25);
-      border-radius: 12px;
+
+    .modal-carousel{
+      position: relative;
+      border-radius: 14px;
+      overflow:hidden;
       border: 1px solid rgba(255,255,255,.12);
+      background: rgba(0,0,0,.25);
+      touch-action: pan-y;
+    }
+    .modal-carousel img{
+      width: 100%;
+      height: min(78vh, 720px);
+      object-fit: contain;
+      display:block;
+      user-select: none;
+      -webkit-user-drag: none;
+    }
+    .modal-badge{
+      position:absolute;
+      inset:auto 12px 12px auto;
+      background: rgba(0,0,0,.55);
+      border: 1px solid rgba(255,255,255,.20);
+      color: rgba(255,255,255,.95);
+      padding: 6px 8px;
+      border-radius: 999px;
+      font-size: 12px;
+      backdrop-filter: blur(8px);
+    }
+    .modal-nav{
+      position:absolute;
+      top: 50%;
+      transform: translateY(-50%);
+      width: 44px;
+      height: 44px;
+      border-radius: 999px;
+      border: 1px solid rgba(255,255,255,.18);
+      background: rgba(0,0,0,.35);
+      color: rgba(255,255,255,.95);
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      cursor:pointer;
+      backdrop-filter: blur(8px);
+      z-index: 2;
+    }
+    .modal-nav:active{ transform: translateY(-50%) scale(.98); }
+    .modal-nav.prev{ left: 10px; }
+    .modal-nav.next{ right: 10px; }
+    .modal-nav[disabled]{ opacity:.45; cursor: default; }
+
+    .modal-dots{
+      display:flex;
+      gap: 6px;
+      justify-content:center;
+      align-items:center;
+      margin-top: 10px;
+      min-height: 14px;
     }
 
     footer{
@@ -307,22 +392,16 @@
   <div class="header-inner">
     <div class="brand">
       <h1>Itens à Venda</h1>
-      <p>Fotos • descrição • preço • contato rápido</p>
     </div>
     <div class="pill" id="countPill"><b>0</b> itens</div>
   </div>
 </header>
 
 <div class="wrap">
-  <div class="controls">
-    <div class="search">
-      <span aria-hidden="true">🔎</span>
-      <input id="search" type="search" placeholder="Buscar item (ex: quadro, philips, panasonic…)" />
-    </div>
-    <div class="pill"><b>Toque</b> nas fotos para ampliar</div>
+  <div class="hint">
+    <span>📱 Dica: deslize na foto para ver mais imagens do item.</span>
+    <span class="pill"><b>Toque</b> para ampliar</span>
   </div>
-
-  <div class="hint">Dica: se um item tiver mais de 2 fotos, você pode adicionar mais arquivos na pasta <b>assets</b> e incluir no array <b>photos</b>.</div>
 
   <section class="grid" id="grid"></section>
 
@@ -338,40 +417,42 @@
 <div class="modal" id="modal" aria-hidden="true">
   <div class="modal-inner" role="dialog" aria-modal="true">
     <div class="modal-top">
-      <p class="modal-title" id="modalTitle">Imagem</p>
+      <p class="modal-title" id="modalTitle">Fotos</p>
       <button class="modal-close" id="modalClose">Fechar ✕</button>
     </div>
+
     <div class="modal-body">
-      <img id="modalImg" alt="Foto ampliada" />
+      <div class="modal-carousel" id="modalCarousel">
+        <img id="modalImg" alt="Foto ampliada" />
+        <button class="modal-nav prev" id="modalPrev" type="button" aria-label="Anterior">‹</button>
+        <button class="modal-nav next" id="modalNext" type="button" aria-label="Próxima">›</button>
+        <div class="modal-badge" id="modalBadge">1/1</div>
+      </div>
+      <div class="modal-dots" id="modalDots"></div>
     </div>
   </div>
 </div>
 
 <script>
-  // ===== CONFIG =====
-  // Coloque seu número com DDI +55 e DDD, só números (sem +, sem espaços)
-  const WHATSAPP_NUMBER = "55XXXXXXXXXXX"; // exemplo: "5547999999999"
+  const WHATSAPP_NUMBER = "5547992726660";
   const DEFAULT_MESSAGE = "Olá! Tenho interesse neste item: ";
 
-  // ===== ITENS (2+ fotos por item) =====
-  // Coloque suas imagens na pasta: assets/
-  // Ex: assets/pinkfloyd-1.jpg, assets/pinkfloyd-2.jpg ...
   const items = [
-    { name:"Quadro Pink Floyd", desc:"95 cm (L) x 64 cm (A)", price:60, tag:"Decoração", photos:["assets/pinkfloyd-1.jpg","assets/pinkfloyd-2.jpg"] },
-    { name:"Quadro Rolling Stones", desc:"64 cm (L) x 95 cm (A)", price:60, tag:"Decoração", photos:["assets/rollingstones-1.jpg","assets/rollingstones-2.jpg"] },
-    { name:"Quadro Kiss Mickey", desc:"31 x 31 cm", price:30, tag:"Decoração", photos:["assets/kiss-1.jpg","assets/kiss-2.jpg"] },
-    { name:"Photoframe Digital Sony DPF-V900", desc:"", price:80, tag:"Eletrônicos", photos:["assets/sony-1.jpg","assets/sony-2.jpg"] },
-    { name:"Taça", desc:"", price:30, tag:"Casa", photos:["assets/taca-1.jpg","assets/taca-2.jpg"] },
-    { name:"Jogo de Canecas (6x)", desc:"", price:60, tag:"Casa", photos:["assets/canecas6-1.jpg","assets/canecas6-2.jpg"] },
-    { name:"Canecas Schlachtfest (2x)", desc:"", price:40, tag:"Casa", photos:["assets/schlachtfest-1.jpg","assets/schlachtfest-2.jpg"] },
-    { name:"Sistema de Som Philips Surround FR732 + Caixas", desc:"", price:700, tag:"Áudio", photos:["assets/philips-1.jpg","assets/philips-2.jpg"] },
-    { name:"Cristaleira", desc:"", price:50, tag:"Móveis", photos:["assets/cristaleira-1.jpg","assets/cristaleira-2.jpg"] },
-    { name:"Disco Giratório", desc:"", price:50, tag:"Casa", photos:["assets/disco-1.jpg","assets/disco-2.jpg"] },
-    { name:"Sanduicheira Black+Decker", desc:"", price:100, tag:"Cozinha", photos:["assets/sanduicheira-1.jpg","assets/sanduicheira-2.jpg"] },
-    { name:"Teclado Devastator", desc:"", price:120, tag:"PC", photos:["assets/teclado-1.jpg","assets/teclado-2.jpg"] },
-    { name:"TV Panasonic LCD TC-L32X30B", desc:"", price:null, tag:"TV", photos:["assets/panasonic-1.jpg","assets/panasonic-2.jpg"] },
-    { name:"Balcão e Painel", desc:"", price:350, tag:"Móveis", photos:["assets/balcao-1.jpg","assets/balcao-2.jpg"] },
-    { name:"Poltrona", desc:"Reclinável", price:350, tag:"Móveis", photos:["assets/poltrona-1.jpg","assets/poltrona-2.jpg"] }
+    { name:"Quadro Pink Floyd", desc:"95 cm (L) x 64 cm (A)", price:60, tag:"Decoração", photos:["assets/pinkfloyd-1.jpeg"] },
+    { name:"Quadro Rolling Stones", desc:"64 cm (L) x 95 cm (A)", price:60, tag:"Decoração", photos:["assets/rollingstones-1.jpeg"] },
+    { name:"Quadro Kiss Mickey", desc:"31 x 31 cm", price:30, tag:"Decoração", photos:["assets/kiss-1.jpeg"] },
+    { name:"Photoframe Digital Sony DPF-V900", desc:"", price:80, tag:"Eletrônicos", photos:["assets/sony-1.jpeg","assets/sony-2.jpeg","assets/sony-3.jpeg"] },
+    { name:"Taça", desc:"", price:30, tag:"Decoração", photos:["assets/taca-1.jpeg","assets/taca-2.jpeg"] },
+    { name:"Jogo de Canecas (6x)", desc:"", price:60, tag:"Casa", photos:["assets/canecas6-1.jpeg","assets/canecas6-2.jpeg"] },
+    { name:"Canecas Schlachtfest (2x)", desc:"", price:40, tag:"Casa", photos:["assets/schlachtfest-1.jpeg","assets/schlachtfest-2.jpeg"] },
+    { name:"Sistema de Som Philips Surround FR732 + Caixas", desc:"", price:700, tag:"Áudio", photos:["assets/philips-1.jpeg","assets/philips-2.jpeg","assets/philips-3.jpeg"] },
+    { name:"Cristaleira", desc:"", price:50, tag:"Decoração", photos:["assets/cristaleira-1.jpeg"] },
+    { name:"Disco Giratório", desc:"", price:50, tag:"Casa", photos:["assets/disco-1.jpeg"] }, 
+    { name:"Sanduicheira Black+Decker", desc:"", price:100, tag:"Cozinha", photos:["assets/sanduicheira-1.jpeg"] },
+    { name:"Teclado Devastator", desc:"", price:120, tag:"PC", photos:["assets/teclado-1.jpeg","assets/teclado-2.jpeg"] },
+    { name:"TV Panasonic LCD TC-L32X30B", desc:"32 Polegadas, acompanha controle remoto", price:400, tag:"TV", photos:["assets/panasonic-1.jpeg","assets/panasonic-2.jpeg","assets/panasonic-3.jpeg"] },
+    { name:"Balcão e Painel", desc:"Medidas \n Balcão: 1,50 m (C) x 54,5 cm (L) 97 cm (A) \n Prateleiras: 27 cm (A) x 49 cm (L) e 15 cm profundidade \nPainel: 1,23 m (A) x 54 cm (L) \nPrateleiras: 51 cm (L) e 15 cm de profundidade", price:350, tag:"Móveis", photos:["assets/balcao-1.png","assets/balcao-2.jpeg"] },
+    { name:"Poltrona", desc:"Possui controle para reclinar mas está sem transformador", price:350, tag:"Móveis", photos:["assets/poltrona-1.jpeg","assets/poltrona-2.jpeg"] }
   ];
 
   const fmtBRL = (v) =>
@@ -384,13 +465,11 @@
     return `https://wa.me/${WHATSAPP_NUMBER}?text=${text}`;
   };
 
-  // Botão fixo geral
   const waFloat = document.getElementById("waFloat");
   waFloat.href = `https://wa.me/${WHATSAPP_NUMBER}?text=${encodeURIComponent("Olá! Tenho interesse em um item da lista.")}`;
 
   const grid = document.getElementById("grid");
   const countPill = document.getElementById("countPill");
-  const search = document.getElementById("search");
 
   function escapeHtml(str){
     return String(str)
@@ -401,6 +480,210 @@
       .replaceAll("'","&#039;");
   }
 
+  const modal = document.getElementById("modal");
+  const modalTitle = document.getElementById("modalTitle");
+  const modalImg = document.getElementById("modalImg");
+  const modalBadge = document.getElementById("modalBadge");
+  const modalDots = document.getElementById("modalDots");
+  const modalClose = document.getElementById("modalClose");
+  const modalPrev = document.getElementById("modalPrev");
+  const modalNext = document.getElementById("modalNext");
+  const modalCarousel = document.getElementById("modalCarousel");
+
+  let modalPhotos = [];
+  let modalIndex = 0;
+
+  function renderModalDots(){
+    modalDots.innerHTML = "";
+    if (modalPhotos.length <= 1) return;
+
+    modalPhotos.forEach((_, i) => {
+      const d = document.createElement("span");
+      d.className = "dot" + (i === modalIndex ? " active" : "");
+      d.dataset.dot = String(i);
+      d.addEventListener("click", (e) => {
+        e.preventDefault();
+        e.stopPropagation();
+        setModalIndex(i);
+      });
+      modalDots.appendChild(d);
+    });
+  }
+
+  function setModalIndex(idx){
+    if (!modalPhotos.length) return;
+    modalIndex = ((idx % modalPhotos.length) + modalPhotos.length) % modalPhotos.length;
+
+    modalImg.src = modalPhotos[modalIndex];
+    modalBadge.textContent = `${modalIndex + 1}/${modalPhotos.length}`;
+
+    modalDots.querySelectorAll(".dot").forEach((d, i) => d.classList.toggle("active", i === modalIndex));
+
+    const disableNav = modalPhotos.length <= 1;
+    modalPrev.disabled = disableNav;
+    modalNext.disabled = disableNav;
+  }
+
+  function openModalCarousel(title, photos, startIndex = 0){
+    modalTitle.textContent = title || "Fotos";
+    modalPhotos = Array.isArray(photos) && photos.length ? photos : [];
+    modalIndex = 0;
+
+    modal.classList.add("open");
+    modal.setAttribute("aria-hidden", "false");
+
+    renderModalDots();
+    setModalIndex(startIndex);
+  }
+
+  function closeModal(){
+    modal.classList.remove("open");
+    modal.setAttribute("aria-hidden", "true");
+    modalImg.src = "";
+    modalPhotos = [];
+    modalIndex = 0;
+    modalDots.innerHTML = "";
+  }
+
+  modalClose.addEventListener("click", closeModal);
+  modal.addEventListener("click", (e) => { if(e.target === modal) closeModal(); });
+  window.addEventListener("keydown", (e) => {
+    if (!modal.classList.contains("open")) return;
+    if (e.key === "Escape") closeModal();
+    if (e.key === "ArrowLeft") setModalIndex(modalIndex - 1);
+    if (e.key === "ArrowRight") setModalIndex(modalIndex + 1);
+  });
+
+  modalPrev.addEventListener("click", (e) => {
+    e.preventDefault();
+    e.stopPropagation();
+    setModalIndex(modalIndex - 1);
+  });
+  modalNext.addEventListener("click", (e) => {
+    e.preventDefault();
+    e.stopPropagation();
+    setModalIndex(modalIndex + 1);
+  });
+
+  let mStartX = null, mStartY = null;
+  modalCarousel.addEventListener("touchstart", (e) => {
+    const t = e.touches[0];
+    mStartX = t.clientX;
+    mStartY = t.clientY;
+  }, {passive:true});
+
+  modalCarousel.addEventListener("touchend", (e) => {
+    if (mStartX == null) return;
+    const t = (e.changedTouches && e.changedTouches[0]) ? e.changedTouches[0] : null;
+    if (!t) return;
+
+    const dx = t.clientX - mStartX;
+    const dy = t.clientY - mStartY;
+
+    if (Math.abs(dx) > 50 && Math.abs(dx) > Math.abs(dy) && modalPhotos.length > 1){
+      setModalIndex(modalIndex + (dx < 0 ? 1 : -1));
+    }
+    mStartX = null; mStartY = null;
+  });
+
+  function setCarouselImage(carouselEl, it, index){
+    const img = carouselEl.querySelector("img");
+    const badge = carouselEl.querySelector(".car-badge");
+    const dots = carouselEl.querySelectorAll(".dot");
+    const safeIndex = ((index % it.photos.length) + it.photos.length) % it.photos.length;
+    carouselEl.dataset.index = String(safeIndex);
+
+    img.src = it.photos[safeIndex];
+    img.alt = `${it.name} - foto ${safeIndex + 1}`;
+    if (badge) badge.textContent = `${safeIndex + 1}/${it.photos.length}`;
+    dots.forEach((d, i) => d.classList.toggle("active", i === safeIndex));
+  }
+
+  function buildCarousel(it){
+    const total = it.photos.length || 1;
+    const first = it.photos[0];
+
+    const dotsHtml = total > 1
+      ? `<div class="car-dots">
+          ${Array.from({length: total}).map((_, i) => `<span class="dot ${i===0 ? "active" : ""}" data-dot="${i}" aria-label="Foto ${i+1}"></span>`).join("")}
+        </div>`
+      : `<div class="car-dots"></div>`;
+
+    const navButtons = total > 1 ? `
+      <button class="car-btn prev" type="button" aria-label="Anterior">‹</button>
+      <button class="car-btn next" type="button" aria-label="Próxima">›</button>
+      <div class="car-badge">1/${total}</div>
+    ` : `
+      <div class="car-badge">1/1</div>
+    `;
+
+    const wrapper = document.createElement("div");
+    wrapper.className = "carousel";
+    wrapper.dataset.index = "0";
+
+    wrapper.innerHTML = `
+      <div class="carousel-viewport" title="Toque para ampliar">
+        <img loading="lazy" src="${first}" alt="${escapeHtml(it.name)} - foto 1">
+        ${navButtons}
+      </div>
+      ${dotsHtml}
+    `;
+
+    const viewport = wrapper.querySelector(".carousel-viewport");
+
+    viewport.addEventListener("click", (e) => {
+      const isBtn = e.target.closest(".car-btn") || e.target.closest(".dot");
+      if (isBtn) return;
+      const idx = Number(wrapper.dataset.index || "0");
+      openModalCarousel(it.name, it.photos, idx);
+    });
+
+    const prev = wrapper.querySelector(".car-btn.prev");
+    const next = wrapper.querySelector(".car-btn.next");
+    if (prev && next){
+      prev.addEventListener("click", (e) => {
+        e.preventDefault(); e.stopPropagation();
+        setCarouselImage(wrapper, it, Number(wrapper.dataset.index || "0") - 1);
+      });
+      next.addEventListener("click", (e) => {
+        e.preventDefault(); e.stopPropagation();
+        setCarouselImage(wrapper, it, Number(wrapper.dataset.index || "0") + 1);
+      });
+    }
+
+    wrapper.querySelectorAll(".dot").forEach(dot => {
+      dot.addEventListener("click", (e) => {
+        e.preventDefault(); e.stopPropagation();
+        setCarouselImage(wrapper, it, Number(dot.dataset.dot || "0"));
+      });
+    });
+
+    let startX = null, startY = null;
+    viewport.addEventListener("touchstart", (e) => {
+      const t = e.touches[0];
+      startX = t.clientX;
+      startY = t.clientY;
+    }, {passive:true});
+
+    viewport.addEventListener("touchend", (e) => {
+      if (startX == null) return;
+      const t = (e.changedTouches && e.changedTouches[0]) ? e.changedTouches[0] : null;
+      if (!t) return;
+
+      const dx = t.clientX - startX;
+      const dy = t.clientY - startY;
+
+      if (Math.abs(dx) > 50 && Math.abs(dx) > Math.abs(dy) && total > 1){
+        const idx = Number(wrapper.dataset.index || "0");
+        setCarouselImage(wrapper, it, idx + (dx < 0 ? 1 : -1));
+      }
+      startX = null; startY = null;
+    });
+
+    if (total > 1) setCarouselImage(wrapper, it, 0);
+    return wrapper;
+  }
+
   function render(list){
     grid.innerHTML = "";
     countPill.innerHTML = `<b>${list.length}</b> itens`;
@@ -409,75 +692,33 @@
       const card = document.createElement("article");
       card.className = "card";
 
-      const firstTwo = it.photos.slice(0, 2);
-      const extra = Math.max(0, it.photos.length - 2);
+      const carousel = buildCarousel(it);
 
-      const photosHTML = firstTwo.map((src, idx) => `
-        <div class="photo" data-src="${src}" data-title="${escapeHtml(it.name)}">
-          <img loading="lazy" src="${src}" alt="${escapeHtml(it.name)} - foto ${idx+1}">
-          ${idx === 1 && extra > 0 ? `<div class="more-badge">+${extra}</div>` : ""}
+      const content = document.createElement("div");
+      content.className = "content";
+      content.innerHTML = `
+        <h3 class="title">${escapeHtml(it.name)}</h3>
+        <p class="desc">${escapeHtml(it.desc || "")}</p>
+        <div class="row">
+          <div class="price">${fmtBRL(it.price)}</div>
+          <div class="tag">${escapeHtml(it.tag || "Item")}</div>
         </div>
-      `).join("");
-
-      card.innerHTML = `
-        <div class="photos">${photosHTML}</div>
-        <div class="content">
-          <h3 class="title">${escapeHtml(it.name)}</h3>
-          <p class="desc">${escapeHtml(it.desc || "")}</p>
-          <div class="row">
-            <div class="price">${fmtBRL(it.price)}</div>
-            <div class="tag">${escapeHtml(it.tag || "Item")}</div>
-          </div>
-          <div class="actions">
-            <a class="btn btn-primary" target="_blank" rel="noopener" href="${waLinkFor(it.name)}">💬 WhatsApp</a>
-            <button class="btn" type="button" data-open="${it.photos[0]}">🖼️ Ampliar</button>
-          </div>
+        <div class="actions">
+          <a class="btn btn-primary" target="_blank" rel="noopener" href="${waLinkFor(it.name)}">💬 WhatsApp</a>
+          <button class="btn" type="button" data-action="open-all">🖼️ Ver todas</button>
         </div>
       `;
 
-      card.querySelectorAll(".photo").forEach(el => {
-        el.addEventListener("click", () => openModal(el.dataset.src, it.name));
-      });
-      card.querySelector('button[data-open]').addEventListener("click", (e) => {
-        openModal(e.currentTarget.getAttribute("data-open"), it.name);
+      content.querySelector('button[data-action="open-all"]').addEventListener("click", () => {
+        openModalCarousel(it.name, it.photos, 0);
       });
 
+      card.appendChild(carousel);
+      card.appendChild(content);
       grid.appendChild(card);
     });
   }
 
-  function applySearch(){
-    const q = (search.value || "").trim().toLowerCase();
-    if(!q) return render(items);
-    const filtered = items.filter(i =>
-      (i.name + " " + (i.desc||"") + " " + (i.tag||"")).toLowerCase().includes(q)
-    );
-    render(filtered);
-  }
-  search.addEventListener("input", applySearch);
-
-  // Modal
-  const modal = document.getElementById("modal");
-  const modalImg = document.getElementById("modalImg");
-  const modalTitle = document.getElementById("modalTitle");
-  const modalClose = document.getElementById("modalClose");
-
-  function openModal(src, title){
-    modalImg.src = src;
-    modalTitle.textContent = title || "Imagem";
-    modal.classList.add("open");
-    modal.setAttribute("aria-hidden", "false");
-  }
-  function closeModal(){
-    modal.classList.remove("open");
-    modal.setAttribute("aria-hidden", "true");
-    modalImg.src = "";
-  }
-  modalClose.addEventListener("click", closeModal);
-  modal.addEventListener("click", (e) => { if(e.target === modal) closeModal(); });
-  window.addEventListener("keydown", (e) => { if(e.key === "Escape") closeModal(); });
-
-  // Rodapé
   document.getElementById("updated").textContent =
     new Date().toLocaleDateString("pt-BR", { year:"numeric", month:"long", day:"2-digit" });
 
