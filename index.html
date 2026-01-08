@@ -1,0 +1,488 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Itens à Venda</title>
+
+  <meta property="og:title" content="Itens à Venda" />
+  <meta property="og:description" content="Lista de itens à venda com fotos e preços. Chame no WhatsApp." />
+  <meta property="og:type" content="website" />
+
+  <style>
+    :root{
+      --bg: #0b1220;
+      --card: rgba(255,255,255,.06);
+      --text: rgba(255,255,255,.92);
+      --muted: rgba(255,255,255,.70);
+      --line: rgba(255,255,255,.12);
+      --accent: #25D366;
+      --accent2: #7c3aed;
+      --shadow: 0 18px 50px rgba(0,0,0,.35);
+      --radius: 16px;
+    }
+    *{ box-sizing:border-box; }
+    body{
+      margin:0;
+      font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Arial;
+      color: var(--text);
+      background:
+        radial-gradient(1200px 600px at 20% -10%, rgba(124,58,237,.35), transparent 60%),
+        radial-gradient(900px 500px at 110% 10%, rgba(37,211,102,.22), transparent 55%),
+        linear-gradient(180deg, #070b14, var(--bg));
+      min-height: 100vh;
+    }
+    header{
+      position: sticky;
+      top: 0;
+      z-index: 5;
+      backdrop-filter: blur(10px);
+      background: linear-gradient(180deg, rgba(7,11,20,.88), rgba(7,11,20,.65));
+      border-bottom: 1px solid var(--line);
+    }
+    .header-inner{
+      max-width: 1100px;
+      margin: 0 auto;
+      padding: 14px;
+      display:flex;
+      gap: 12px;
+      align-items: center;
+      justify-content: space-between;
+    }
+    .brand{ display:flex; flex-direction:column; gap:2px; }
+    .brand h1{ font-size: 18px; margin:0; }
+    .brand p{ margin:0; font-size: 13px; color: var(--muted); }
+    .pill{
+      display:flex; gap:8px; align-items:center;
+      padding: 8px 10px;
+      border: 1px solid var(--line);
+      background: rgba(255,255,255,.04);
+      border-radius: 999px;
+      font-size: 13px;
+      color: var(--muted);
+      white-space: nowrap;
+    }
+    .pill b{ color: var(--text); font-weight: 700; }
+
+    .wrap{
+      max-width: 1100px;
+      margin: 0 auto;
+      padding: 18px 14px 120px;
+    }
+
+    .controls{
+      display:grid;
+      grid-template-columns: 1fr;
+      gap: 10px;
+      margin: 18px 0 10px;
+    }
+    .search{
+      display:flex; gap:10px; align-items:center;
+      padding: 12px 12px;
+      border-radius: var(--radius);
+      border: 1px solid var(--line);
+      background: rgba(255,255,255,.04);
+      box-shadow: 0 10px 28px rgba(0,0,0,.18);
+    }
+    .search input{
+      width:100%;
+      border:none;
+      outline:none;
+      background:transparent;
+      color: var(--text);
+      font-size: 15px;
+    }
+    .search input::placeholder{ color: rgba(255,255,255,.55); }
+
+    .hint{
+      color: var(--muted);
+      font-size: 12px;
+      margin: 8px 0 12px;
+      padding: 0 4px;
+    }
+
+    .grid{
+      display:grid;
+      grid-template-columns: repeat(1, minmax(0, 1fr));
+      gap: 14px;
+      margin-top: 10px;
+    }
+    @media (min-width: 650px){
+      .controls{ grid-template-columns: 1fr auto; align-items:center; }
+      .grid{ grid-template-columns: repeat(2, minmax(0, 1fr)); }
+      .brand h1{ font-size: 20px; }
+    }
+    @media (min-width: 980px){
+      .grid{ grid-template-columns: repeat(3, minmax(0, 1fr)); }
+    }
+
+    .card{
+      border: 1px solid var(--line);
+      background: linear-gradient(180deg, rgba(255,255,255,.06), rgba(255,255,255,.04));
+      border-radius: var(--radius);
+      overflow:hidden;
+      box-shadow: var(--shadow);
+    }
+    .photos{
+      display:grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 8px;
+      padding: 12px;
+    }
+    .photo{
+      border-radius: 12px;
+      overflow:hidden;
+      background: rgba(255,255,255,.06);
+      border: 1px solid rgba(255,255,255,.10);
+      aspect-ratio: 4 / 3;
+      cursor:pointer;
+      position:relative;
+    }
+    .photo img{
+      width:100%;
+      height:100%;
+      object-fit: cover;
+      display:block;
+      transform: scale(1.01);
+      transition: transform .25s ease;
+    }
+    .photo:hover img{ transform: scale(1.05); }
+    .more-badge{
+      position:absolute;
+      inset:auto 8px 8px auto;
+      background: rgba(0,0,0,.55);
+      border: 1px solid rgba(255,255,255,.20);
+      color: rgba(255,255,255,.95);
+      padding: 6px 8px;
+      border-radius: 999px;
+      font-size: 12px;
+      backdrop-filter: blur(8px);
+    }
+
+    .content{
+      padding: 12px 14px 14px;
+      border-top: 1px solid rgba(255,255,255,.08);
+    }
+    .title{ margin:0; font-size:16px; line-height:1.2; }
+    .desc{ margin:8px 0 0; color: var(--muted); font-size:13px; line-height:1.4; min-height: 18px; }
+
+    .row{
+      display:flex;
+      align-items:center;
+      justify-content: space-between;
+      gap: 12px;
+      margin-top: 12px;
+    }
+    .price{ font-size: 18px; font-weight: 900; }
+    .tag{
+      font-size: 12px;
+      color: rgba(255,255,255,.85);
+      background: rgba(124,58,237,.16);
+      border: 1px solid rgba(124,58,237,.28);
+      padding: 6px 10px;
+      border-radius: 999px;
+      white-space: nowrap;
+    }
+
+    .actions{
+      display:flex;
+      gap: 10px;
+      margin-top: 12px;
+    }
+    .btn{
+      display:inline-flex;
+      align-items:center;
+      justify-content:center;
+      gap: 8px;
+      padding: 10px 12px;
+      border-radius: 12px;
+      border: 1px solid var(--line);
+      background: rgba(255,255,255,.04);
+      color: var(--text);
+      text-decoration:none;
+      font-size: 13px;
+      font-weight: 750;
+      flex: 1;
+      cursor:pointer;
+      transition: transform .08s ease, background .2s ease, border-color .2s ease;
+    }
+    .btn:active{ transform: scale(.98); }
+    .btn:hover{
+      background: rgba(255,255,255,.07);
+      border-color: rgba(255,255,255,.18);
+    }
+    .btn-primary{
+      border-color: rgba(37,211,102,.35);
+      background: rgba(37,211,102,.12);
+    }
+    .btn-primary:hover{
+      background: rgba(37,211,102,.16);
+      border-color: rgba(37,211,102,.45);
+    }
+
+    /* WhatsApp fixo */
+    .wa-float{
+      position: fixed;
+      right: 16px;
+      bottom: 16px;
+      z-index: 20;
+      display:flex;
+      align-items:center;
+      gap: 10px;
+      padding: 12px 14px;
+      border-radius: 999px;
+      background: rgba(37,211,102,.95);
+      color: #07220f;
+      text-decoration: none;
+      font-weight: 950;
+      box-shadow: 0 18px 45px rgba(0,0,0,.35);
+      border: 1px solid rgba(255,255,255,.20);
+    }
+    .wa-float small{ display:none; font-weight: 800; opacity:.9; }
+    @media (min-width: 520px){
+      .wa-float small{ display:block; }
+    }
+
+    /* Modal */
+    .modal{
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,.78);
+      display:none;
+      align-items:center;
+      justify-content:center;
+      z-index: 50;
+      padding: 18px;
+    }
+    .modal.open{ display:flex; }
+    .modal-inner{
+      width: min(980px, 100%);
+      background: rgba(255,255,255,.06);
+      border: 1px solid rgba(255,255,255,.14);
+      border-radius: 16px;
+      overflow:hidden;
+      backdrop-filter: blur(10px);
+      box-shadow: var(--shadow);
+    }
+    .modal-top{
+      display:flex;
+      justify-content: space-between;
+      align-items:center;
+      gap: 10px;
+      padding: 12px 14px;
+      border-bottom: 1px solid rgba(255,255,255,.12);
+    }
+    .modal-title{ margin:0; font-size:14px; font-weight:800; color: rgba(255,255,255,.9); }
+    .modal-close{
+      border: 1px solid rgba(255,255,255,.18);
+      background: rgba(255,255,255,.06);
+      color: rgba(255,255,255,.9);
+      border-radius: 12px;
+      padding: 8px 10px;
+      cursor:pointer;
+      font-weight: 900;
+    }
+    .modal-body{ padding: 12px; }
+    .modal-body img{
+      width: 100%;
+      max-height: 78vh;
+      object-fit: contain;
+      background: rgba(0,0,0,.25);
+      border-radius: 12px;
+      border: 1px solid rgba(255,255,255,.12);
+    }
+
+    footer{
+      margin-top: 22px;
+      color: rgba(255,255,255,.60);
+      font-size: 12px;
+      text-align:center;
+      padding: 18px 6px;
+    }
+  </style>
+</head>
+<body>
+
+<header>
+  <div class="header-inner">
+    <div class="brand">
+      <h1>Itens à Venda</h1>
+      <p>Fotos • descrição • preço • contato rápido</p>
+    </div>
+    <div class="pill" id="countPill"><b>0</b> itens</div>
+  </div>
+</header>
+
+<div class="wrap">
+  <div class="controls">
+    <div class="search">
+      <span aria-hidden="true">🔎</span>
+      <input id="search" type="search" placeholder="Buscar item (ex: quadro, philips, panasonic…)" />
+    </div>
+    <div class="pill"><b>Toque</b> nas fotos para ampliar</div>
+  </div>
+
+  <div class="hint">Dica: se um item tiver mais de 2 fotos, você pode adicionar mais arquivos na pasta <b>assets</b> e incluir no array <b>photos</b>.</div>
+
+  <section class="grid" id="grid"></section>
+
+  <footer>
+    Última atualização: <span id="updated"></span> • Hospedado no GitHub Pages
+  </footer>
+</div>
+
+<a class="wa-float" id="waFloat" href="#" target="_blank" rel="noopener">
+  💬 <small>Chamar no WhatsApp</small>
+</a>
+
+<div class="modal" id="modal" aria-hidden="true">
+  <div class="modal-inner" role="dialog" aria-modal="true">
+    <div class="modal-top">
+      <p class="modal-title" id="modalTitle">Imagem</p>
+      <button class="modal-close" id="modalClose">Fechar ✕</button>
+    </div>
+    <div class="modal-body">
+      <img id="modalImg" alt="Foto ampliada" />
+    </div>
+  </div>
+</div>
+
+<script>
+  // ===== CONFIG =====
+  // Coloque seu número com DDI +55 e DDD, só números (sem +, sem espaços)
+  const WHATSAPP_NUMBER = "55XXXXXXXXXXX"; // exemplo: "5547999999999"
+  const DEFAULT_MESSAGE = "Olá! Tenho interesse neste item: ";
+
+  // ===== ITENS (2+ fotos por item) =====
+  // Coloque suas imagens na pasta: assets/
+  // Ex: assets/pinkfloyd-1.jpg, assets/pinkfloyd-2.jpg ...
+  const items = [
+    { name:"Quadro Pink Floyd", desc:"95 cm (L) x 64 cm (A)", price:60, tag:"Decoração", photos:["assets/pinkfloyd-1.jpg","assets/pinkfloyd-2.jpg"] },
+    { name:"Quadro Rolling Stones", desc:"64 cm (L) x 95 cm (A)", price:60, tag:"Decoração", photos:["assets/rollingstones-1.jpg","assets/rollingstones-2.jpg"] },
+    { name:"Quadro Kiss Mickey", desc:"31 x 31 cm", price:30, tag:"Decoração", photos:["assets/kiss-1.jpg","assets/kiss-2.jpg"] },
+    { name:"Photoframe Digital Sony DPF-V900", desc:"", price:80, tag:"Eletrônicos", photos:["assets/sony-1.jpg","assets/sony-2.jpg"] },
+    { name:"Taça", desc:"", price:30, tag:"Casa", photos:["assets/taca-1.jpg","assets/taca-2.jpg"] },
+    { name:"Jogo de Canecas (6x)", desc:"", price:60, tag:"Casa", photos:["assets/canecas6-1.jpg","assets/canecas6-2.jpg"] },
+    { name:"Canecas Schlachtfest (2x)", desc:"", price:40, tag:"Casa", photos:["assets/schlachtfest-1.jpg","assets/schlachtfest-2.jpg"] },
+    { name:"Sistema de Som Philips Surround FR732 + Caixas", desc:"", price:700, tag:"Áudio", photos:["assets/philips-1.jpg","assets/philips-2.jpg"] },
+    { name:"Cristaleira", desc:"", price:50, tag:"Móveis", photos:["assets/cristaleira-1.jpg","assets/cristaleira-2.jpg"] },
+    { name:"Disco Giratório", desc:"", price:50, tag:"Casa", photos:["assets/disco-1.jpg","assets/disco-2.jpg"] },
+    { name:"Sanduicheira Black+Decker", desc:"", price:100, tag:"Cozinha", photos:["assets/sanduicheira-1.jpg","assets/sanduicheira-2.jpg"] },
+    { name:"Teclado Devastator", desc:"", price:120, tag:"PC", photos:["assets/teclado-1.jpg","assets/teclado-2.jpg"] },
+    { name:"TV Panasonic LCD TC-L32X30B", desc:"", price:null, tag:"TV", photos:["assets/panasonic-1.jpg","assets/panasonic-2.jpg"] },
+    { name:"Balcão e Painel", desc:"", price:350, tag:"Móveis", photos:["assets/balcao-1.jpg","assets/balcao-2.jpg"] },
+    { name:"Poltrona", desc:"Reclinável", price:350, tag:"Móveis", photos:["assets/poltrona-1.jpg","assets/poltrona-2.jpg"] }
+  ];
+
+  const fmtBRL = (v) =>
+    (typeof v === "number")
+      ? v.toLocaleString("pt-BR", { style:"currency", currency:"BRL" })
+      : "Preço a combinar";
+
+  const waLinkFor = (itemName) => {
+    const text = encodeURIComponent(DEFAULT_MESSAGE + itemName);
+    return `https://wa.me/${WHATSAPP_NUMBER}?text=${text}`;
+  };
+
+  // Botão fixo geral
+  const waFloat = document.getElementById("waFloat");
+  waFloat.href = `https://wa.me/${WHATSAPP_NUMBER}?text=${encodeURIComponent("Olá! Tenho interesse em um item da lista.")}`;
+
+  const grid = document.getElementById("grid");
+  const countPill = document.getElementById("countPill");
+  const search = document.getElementById("search");
+
+  function escapeHtml(str){
+    return String(str)
+      .replaceAll("&","&amp;")
+      .replaceAll("<","&lt;")
+      .replaceAll(">","&gt;")
+      .replaceAll('"',"&quot;")
+      .replaceAll("'","&#039;");
+  }
+
+  function render(list){
+    grid.innerHTML = "";
+    countPill.innerHTML = `<b>${list.length}</b> itens`;
+
+    list.forEach((it) => {
+      const card = document.createElement("article");
+      card.className = "card";
+
+      const firstTwo = it.photos.slice(0, 2);
+      const extra = Math.max(0, it.photos.length - 2);
+
+      const photosHTML = firstTwo.map((src, idx) => `
+        <div class="photo" data-src="${src}" data-title="${escapeHtml(it.name)}">
+          <img loading="lazy" src="${src}" alt="${escapeHtml(it.name)} - foto ${idx+1}">
+          ${idx === 1 && extra > 0 ? `<div class="more-badge">+${extra}</div>` : ""}
+        </div>
+      `).join("");
+
+      card.innerHTML = `
+        <div class="photos">${photosHTML}</div>
+        <div class="content">
+          <h3 class="title">${escapeHtml(it.name)}</h3>
+          <p class="desc">${escapeHtml(it.desc || "")}</p>
+          <div class="row">
+            <div class="price">${fmtBRL(it.price)}</div>
+            <div class="tag">${escapeHtml(it.tag || "Item")}</div>
+          </div>
+          <div class="actions">
+            <a class="btn btn-primary" target="_blank" rel="noopener" href="${waLinkFor(it.name)}">💬 WhatsApp</a>
+            <button class="btn" type="button" data-open="${it.photos[0]}">🖼️ Ampliar</button>
+          </div>
+        </div>
+      `;
+
+      card.querySelectorAll(".photo").forEach(el => {
+        el.addEventListener("click", () => openModal(el.dataset.src, it.name));
+      });
+      card.querySelector('button[data-open]').addEventListener("click", (e) => {
+        openModal(e.currentTarget.getAttribute("data-open"), it.name);
+      });
+
+      grid.appendChild(card);
+    });
+  }
+
+  function applySearch(){
+    const q = (search.value || "").trim().toLowerCase();
+    if(!q) return render(items);
+    const filtered = items.filter(i =>
+      (i.name + " " + (i.desc||"") + " " + (i.tag||"")).toLowerCase().includes(q)
+    );
+    render(filtered);
+  }
+  search.addEventListener("input", applySearch);
+
+  // Modal
+  const modal = document.getElementById("modal");
+  const modalImg = document.getElementById("modalImg");
+  const modalTitle = document.getElementById("modalTitle");
+  const modalClose = document.getElementById("modalClose");
+
+  function openModal(src, title){
+    modalImg.src = src;
+    modalTitle.textContent = title || "Imagem";
+    modal.classList.add("open");
+    modal.setAttribute("aria-hidden", "false");
+  }
+  function closeModal(){
+    modal.classList.remove("open");
+    modal.setAttribute("aria-hidden", "true");
+    modalImg.src = "";
+  }
+  modalClose.addEventListener("click", closeModal);
+  modal.addEventListener("click", (e) => { if(e.target === modal) closeModal(); });
+  window.addEventListener("keydown", (e) => { if(e.key === "Escape") closeModal(); });
+
+  // Rodapé
+  document.getElementById("updated").textContent =
+    new Date().toLocaleDateString("pt-BR", { year:"numeric", month:"long", day:"2-digit" });
+
+  render(items);
+</script>
+
+</body>
+</html>
